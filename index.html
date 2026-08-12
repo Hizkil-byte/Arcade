@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#fcf0f4">
+    
+    <title>Arcade Cinta 💖 - Souvenir Shop Action Challenges Edition</title>
+    
+    <!-- Link CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="vfx-canvas"></canvas>
+
+    <!-- === INITIAL LOADING SCREEN === -->
+    <div id="loading-screen" class="screen active">
+        <div class="loading-wrapper">
+            <div class="loading-icon animate-pulse-slow">💖</div>
+            <div class="loading-title">Arcade Cinta</div>
+            <div class="loading-subtitle">Memuat Dunia Asmara...</div>
+            
+            <div class="progress-track">
+                <div class="progress-bar-fill" id="progress-bar-fill"></div>
+            </div>
+            <div class="progress-text" id="progress-text-percent">0%</div>
+            <div class="loading-quote" id="loading-quote-text">Menyiapkan dadu takdir...</div>
+        </div>
+    </div>
+
+    <!-- === MAIN MENU === -->
+    <div id="menu-screen" class="screen">
+        <div class="menu-wrapper">
+            <div class="menu-title">Arcade<br>Cinta 💖</div>
+            <div class="menu-subtitle">Edisi Premium Pasangan</div>
+
+            <!-- TOMBOL GAME UTAMA (HERO - LEBIH BESAR & MENONJOL) -->
+            <button class="menu-btn menu-btn-hero" onclick="promptMultiplayerChoice('monopoly')">
+                <span>🎩</span> Monopoli Ekstrem
+            </button>
+            <button class="menu-btn btn-sl menu-btn-hero" onclick="promptMultiplayerChoice('sl')">
+                <span>🪜</span> Ular Tangga Asmara
+            </button>
+            
+            <!-- TOMBOL MENU SEKUNDER / LAINNYA (LEBIH RINGKAS) -->
+            <button class="menu-btn menu-btn-sub" onclick="openStatsModal()" style="background: linear-gradient(135deg, #7209b7, #560bad); color: white;">
+                <span>📊</span> Statistik & Jurnal Kencan
+            </button>
+
+            <button class="menu-btn btn-name menu-btn-sub" onclick="openNameConfigModal()">
+                <span>✏️</span> Kustomisasi Nama
+            </button>
+
+            <button class="menu-btn btn-guide menu-btn-sub" onclick="openGuideModal()">
+                <span>📖</span> Panduan & Cara Bermain
+            </button>
+            
+            <button class="menu-btn menu-btn-sub" onclick="document.getElementById('custom-bg-modal').style.display = 'flex'" style="background: linear-gradient(135deg, #ffb5a7, #fcd5ce); color: #4a4e69;">
+                <span>🖼️</span> Kustomisasi Papan (Galeri)
+            </button>
+
+            <div style="font-size: 10px; color: #777; margin-top: 10px; font-weight: 600; opacity: 0.85; letter-spacing: 0.3px;">
+                Dibuat dengan 💖 khusus untuk Pasangan • By Hizkil
+            </div>
+        </div>
+    </div>
+
+    <!-- === SCREEN 2: ROULETTE MOOD OF THE DAY === -->
+    <div id="roulette-screen" class="screen">
+        <button class="glass-btn back-btn-top" onclick="backToMenu()">🔙 Kembali</button>
+        <div class="roulette-card">
+            <h2 class="modal-title" style="color:var(--primary); font-size:24px;">✨ Mood of the Day ✨</h2>
+            <p class="modal-text">Takdir sedang menentukan suasana kencan kalian hari ini...</p>
+            
+            <div style="background:white; border:2px dashed #ffb3c6; border-radius:18px; padding:18px; margin:15px 0;">
+                <div style="font-size:42px;" id="roulette-icon" class="animate-pulse-slow">🎲</div>
+                <h3 style="font-family:var(--font-title); font-size:18px; margin-top:8px;" id="roulette-name">Mengacak Arena...</h3>
+                <p style="font-size:11px; color:#666; margin-top:4px;" id="roulette-desc">Tunggu sebentar ya!</p>
+            </div>
+
+            <button class="btn-action btn-buy" style="width:100%; padding:14px; font-size:15px;" id="btn-spin" onclick="startRoulette()">
+                Acak Mood Kencan Sekarang! 🎰
+            </button>
+        </div>
+    </div>
+
+    <!-- === SCREEN 3: ARENA INFO === -->
+    <div id="arena-info-screen" class="screen">
+        <div class="arena-preview-card">
+            <div style="font-size:48px;" id="info-icon">☕</div>
+            <h2 class="modal-title" id="info-name" style="margin-top:5px;">Nama Arena</h2>
+            <p class="modal-text" id="info-desc" style="font-style:italic; font-size:12px; margin-bottom:12px;">Deskripsi Arena</p>
+
+            <div class="buff-box">
+                <b>🟢 Keuntungan (Buff):</b><br><span id="info-buff">-</span>
+            </div>
+            <div class="nerf-box">
+                <b>🔴 Tantangan (Nerf):</b><br><span id="info-nerf">-</span>
+            </div>
+
+            <button class="btn-action btn-buy" style="width:100%; margin-top:16px; padding:14px; font-size:14px;" onclick="enterGameSession()">
+                Mulai Kencan di Arena Ini! 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- === MONOPOLY SCREEN === -->
+    <div id="monopoly-screen" class="screen">
+        <div class="game-area" id="monopoly-game-area">
+            <div class="monopoly-board" id="m-board">
+                <div class="center-area">
+                    <div class="logo-center">Monopoli Cinta</div>
+                    <div style="display:flex; gap:4px; align-items:center;">
+                        <div id="economy-status" onclick="showEconomyInfo()">Ekonomi: Normal ⚖️</div>
+                        <div id="active-arena-tag" onclick="showActiveArenaInfo()">☕ Café</div>
+                    </div>
+                    <div class="player-stats">
+                        <div class="stat-box" id="m-stat-p1" style="color:#c9184a;"><span id="p1-label">🤵 P1</span><br>💰 <span id="m-money-p1" class="money-text">2000</span><br>💳 <span id="m-debt-p1" class="debt-text">0</span></div>
+                        <div class="stat-box" id="m-stat-p2" style="color:#001f54;"><span id="p2-label">👰 P2</span><br>💰 <span id="m-money-p2" class="money-text">2000</span><br>💳 <span id="m-debt-p2" class="debt-text">0</span></div>
+                    </div>
+                    <div class="turn-indicator" id="m-turn-indicator">Giliran: P1 🤵</div>
+                    <div class="dice-wrapper">
+                        <div class="dice-container">
+                            <div class="dice-3d" id="m-dice1">
+                                <div class="face front">1</div><div class="face back">6</div><div class="face right">3</div>
+                                <div class="face left">4</div><div class="face top">2</div><div class="face bottom">5</div>
+                            </div>
+                        </div>
+                        <div class="dice-container">
+                            <div class="dice-3d" id="m-dice2">
+                                <div class="face front">1</div><div class="face back">6</div><div class="face right">3</div>
+                                <div class="face left">4</div><div class="face top">2</div><div class="face bottom">5</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-roll" id="m-btn-roll" onclick="M_rollDice()" style="flex:3;">🎲 Lempar</button>
+                        <button class="btn-bank" onclick="if(!window.M_isMoving) M_openBank()" style="flex:1.5;">🏦 Bank</button>
+                        <button class="btn-shop" onclick="if(!window.M_isMoving) M_openShop()" style="flex:1.5;">🛍️ Toko</button>
+                    </div>
+                    <button class="glass-btn back-btn-small" onclick="backToMenu()">🔙 Kembali ke Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === SNAKES & LADDERS SCREEN === -->
+    <div id="sl-screen" class="screen">
+        <button class="glass-btn back-btn-top" onclick="backToMenu()">🔙 Kembali</button>
+        <div class="game-area">
+            <div id="sl-arena-tag" onclick="showActiveSLArenaInfo()" style="font-size:11px; font-weight:800; color:var(--primary-dark); background:rgba(255,255,255,0.9); padding:4px 14px; border-radius:12px; margin-bottom:8px; border:1px solid var(--primary);">Arena: -</div>
+            <div class="sl-board-wrapper">
+                <div class="sl-board" id="sl-board">
+                    <svg class="sl-svg-layer" id="sl-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+                </div>
+            </div>
+
+            <div class="sl-controls">
+                <div class="turn-indicator" id="sl-turn-indicator" style="font-size:14px; padding:6px 20px;">Giliran: P1 🤵</div>
+                
+                <div class="dice-wrapper" style="height: 36px;">
+                    <div class="dice-container">
+                        <div class="dice-3d" id="sl-dice">
+                            <div class="face front">1</div><div class="face back">6</div><div class="face right">3</div>
+                            <div class="face left">4</div><div class="face top">2</div><div class="face bottom">5</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-roll" id="sl-btn-roll" onclick="SL_rollDice()" style="width:100%; padding:12px; font-size:16px;">🎲 Putar Dadu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === PANDUAN MODAL === -->
+    <div class="modal" id="guide-modal" style="z-index: 2200;">
+        <div class="modal-content" style="max-width: 360px; width: 90vw; text-align: left; padding: 20px; background: #fffbf7; border: 1.5px solid #f3d5be; box-shadow: 0 25px 50px rgba(0,0,0,0.15);">
+            <div style="text-align: center; margin-bottom: 12px;">
+                <div style="font-size: 32px; margin-bottom: 2px;">📖</div>
+                <div class="modal-title" style="font-size: 18px; color: #b54553;">Panduan & Info Arena</div>
+            </div>
+            
+            <div style="display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap;">
+                <button class="btn-action btn-buy" style="padding: 7px 4px; font-size: 10px; border-radius: 10px; flex:1;" onclick="switchGuideTab('monopoly')">🎩 Monopoli</button>
+                <button class="btn-action btn-buy" style="padding: 7px 4px; font-size: 10px; border-radius: 10px; background: linear-gradient(135deg, #4ea8de, #0077b6); flex:1;" onclick="switchGuideTab('sl')">🪜 Ular Tangga</button>
+                <button class="btn-action btn-buy" style="padding: 7px 4px; font-size: 10px; border-radius: 10px; background: linear-gradient(135deg, #f72585, #7209b7); flex:1.2;" onclick="switchGuideTab('arenas')">✨ Buff & Nerf</button>
+            </div>
+            <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                <button class="btn-action btn-buy" style="padding: 7px 4px; font-size: 10px; border-radius: 10px; background: linear-gradient(135deg, #7209b7, #560bad); width:100%;" onclick="switchGuideTab('other')">⚙️ Fitur Lain (2 HP, Statistik, Kustomisasi)</button>
+            </div>
+
+            <div id="guide-content-box" style="max-height: 48vh; overflow-y: auto; padding-right: 6px; font-size: 12px; line-height: 1.6; color: #2d3142; font-weight: 500;"></div>
+
+            <div class="modal-buttons" style="margin-top: 14px;">
+                <button class="btn-action btn-pass" style="width: 100%; padding: 10px; border-radius: 12px; background: #f0ebd8; color: #4a4e69; font-size: 12px;" onclick="closeGuideModal()">Tutup Panduan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === GLOBAL MODAL === -->
+    <div class="modal" id="global-modal">
+        <div class="modal-content">
+            <div class="modal-icon" id="modal-icon">🏠</div>
+            <div class="modal-title" id="modal-title">Judul</div>
+            <div class="modal-text" id="modal-text">Teks Deskripsi</div>
+            <div class="modal-buttons" id="modal-buttons"></div>
+        </div>
+    </div>
+
+    <!-- === BANK MODAL === -->
+    <div class="modal" id="bank-modal" style="z-index: 2100;">
+        <div class="modal-content">
+            <div class="modal-icon">🏦</div>
+            <div class="modal-title">Bank Sentral</div>
+            <div class="modal-text">
+                Halo, <span id="bank-player-name" style="font-weight:900; color:var(--primary-dark);">Pemain</span>!<br>
+                Pinjam kelipatan <b>1000 KS</b>. Bunga 10% / Putaran.
+                <div class="bank-panel">
+                    <div class="bank-data"><span>Uang:</span> <span id="bank-money" class="money-text">2000 KS</span></div>
+                    <div class="bank-data"><span>Utang:</span> <span id="bank-debt" class="debt-text">0 KS</span></div>
+                    <div style="font-size: 10px; color: #777; margin-top: 4px; font-weight:600;">Limit Utang Maks: 10.000 KS</div>
+                </div>
+            </div>
+            <div class="modal-buttons" style="flex-direction:row; flex-wrap:wrap;">
+                <button class="btn-action btn-pay" style="width:48%;" onclick="M_borrow()">Pinjam 1K</button>
+                <button class="btn-action btn-buy" style="width:48%;" onclick="M_repay()">Bayar 1K</button>
+                <button class="btn-action" style="width:48%; background:linear-gradient(135deg, #94a3b8, #64748b); color:white; font-weight:800; margin-top:4px;" onclick="closeBank(); M_openGadaiModal();">🔒 Gadai Aset</button>
+                <button class="btn-action" style="width:48%; background:linear-gradient(135deg, #a855f7, #d946ef); color:white; font-weight:800; margin-top:4px;" onclick="closeBank(); M_openTradeModal();">🔄 Trade</button>
+                <button class="btn-action btn-pass" style="width:100%; margin-top:4px;" onclick="closeBank()">Tutup Bank</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === GADAI (MORTGAGE) MODAL === -->
+    <div class="modal" id="gadai-modal" style="z-index: 2100;">
+        <div class="modal-content">
+            <div class="modal-icon">🔒</div>
+            <div class="modal-title">Gadai Aset</div>
+            <div class="modal-text">
+                Aset <span id="gadai-player-name" style="font-weight:900; color:var(--primary-dark);">Pemain</span>. Gadai dapat 50% harga, tebus bayar 55% harga. Properti digadai gak bisa narik sewa.
+            </div>
+            <div id="gadai-items-container" style="margin-bottom:12px; max-height: 42vh; overflow-y: auto; padding-right: 2px;"></div>
+            <div class="modal-buttons">
+                <button class="btn-action btn-pass" onclick="closeGadai()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === TRADE MODAL === -->
+    <div class="modal" id="trade-modal" style="z-index: 2100;">
+        <div class="modal-content">
+            <div class="modal-icon">🔄</div>
+            <div class="modal-title">Trade Properti</div>
+            <div class="modal-text">
+                <span id="trade-player-name" style="font-weight:900; color:var(--primary-dark);">Kamu</span> ↔ <span id="trade-other-name" style="font-weight:900; color:var(--secondary);">Pasangan</span>
+            </div>
+            <div style="text-align:left; margin-bottom:8px;">
+                <div style="font-size:10.5px; font-weight:800; color:var(--primary-dark); margin-bottom:3px;">✅ Propertimu (yang kamu kasih):</div>
+                <div id="trade-my-props" style="max-height:16vh; overflow-y:auto; background:#fff; border:1px solid #f3dde3; border-radius:10px; padding:4px 8px;"></div>
+                <input type="number" id="trade-give-cash" placeholder="KS tambahan yang kamu kasih" min="0" style="width:100%; margin-top:5px; padding:6px 8px; border-radius:8px; border:1px solid #f3dde3; font-size:11px; box-sizing:border-box;">
+            </div>
+            <div style="text-align:left; margin-bottom:10px;">
+                <div style="font-size:10.5px; font-weight:800; color:var(--secondary); margin-bottom:3px;">🎯 Properti Lawan (yang kamu minta):</div>
+                <div id="trade-other-props" style="max-height:16vh; overflow-y:auto; background:#fff; border:1px solid #f3dde3; border-radius:10px; padding:4px 8px;"></div>
+                <input type="number" id="trade-want-cash" placeholder="KS tambahan yang kamu minta" min="0" style="width:100%; margin-top:5px; padding:6px 8px; border-radius:8px; border:1px solid #f3dde3; font-size:11px; box-sizing:border-box;">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-action btn-buy" onclick="M_submitTradeOffer()">Ajukan Trade</button>
+                <button class="btn-action btn-pass" onclick="closeTrade()">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === TOKO SUVENIR MODAL === -->
+    <div class="modal" id="shop-modal" style="z-index: 2100;">
+        <div class="modal-content">
+            <div class="modal-icon">🛍️</div>
+            <div class="modal-title">Toko Suvenir (10 Item)</div>
+            <div class="modal-text">
+                Uang <span id="shop-player-name" style="font-weight:900; color:var(--primary-dark);">Pemain</span>: <span id="shop-money" class="money-text" style="font-weight:800;">2000 KS</span>
+            </div>
+            <div id="shop-items-container" style="margin-bottom:15px; max-height: 45vh; overflow-y: auto; padding-right: 2px;"></div>
+            <div class="modal-buttons">
+                <button class="btn-action btn-pass" style="width:100%;" onclick="closeShop()">Keluar Toko</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === CUSTOM BACKGROUND MODAL === -->
+    <div class="modal" id="custom-bg-modal" style="z-index: 2300;">
+        <div class="modal-content" style="max-width: 360px; width: 90vw; padding: 18px;">
+            <div class="modal-icon" style="font-size: 36px; margin-bottom: 6px;">🖼️</div>
+            <div class="modal-title" style="font-size: 18px; color: #b54553;">Kustomisasi Papan</div>
+            <div class="modal-text" style="font-size: 12px; margin-bottom: 12px; color: #666;">
+                Pilih arena di bawah ini, lalu unggah foto dari galeri HP kamu:
+            </div>
+            
+            <div id="arena-list-container" style="max-height: 200px; overflow-y: auto; padding-right: 4px; margin-bottom: 15px; border: 1.5px solid #ffb3c6; border-radius: 12px; padding: 6px; background: #fffbf7;">
+            </div>
+
+            <input type="file" id="inputGaleriHP" accept="image/*" style="display: none;">
+            
+            <div class="modal-buttons" style="flex-direction: column; gap: 8px;">
+                <button class="btn-action btn-buy" style="width: 100%; padding: 12px; font-size: 14px;" onclick="document.getElementById('inputGaleriHP').click()">
+                    📸 Pilih Foto Galeri
+                </button>
+                <button class="btn-action btn-pay" style="width: 100%; padding: 12px; background: #ff4d6d; color: white; border: none; font-size: 14px;" onclick="window.resetCurrentArenaBg && window.resetCurrentArenaBg()">
+                    🔄 Reset Arena Terpilih
+                </button>
+                <button class="btn-action btn-pass" style="width: 100%; padding: 10px; margin-top: 4px;" onclick="document.getElementById('custom-bg-modal').style.display = 'none'">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Library PeerJS untuk Koneksi 2 HP -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+    <!-- === MODAL LOBBY MULTIPLAYER 2 HP === -->
+    <div class="modal" id="lobby-modal" style="z-index: 2400;">
+        <div class="modal-content" style="max-width: 340px;">
+            <div class="modal-icon">📱 Connect 📱</div>
+            <div class="modal-title">Mode 2 HP (Hotspot)</div>
+            <div class="modal-text" id="lobby-status-text">
+                Pastikan kedua HP terhubung di <b>Hotspot/Wi-Fi</b> yang sama ya!
+            </div>
+            
+            <div id="lobby-host-sec" style="margin-bottom: 12px; display: none;">
+                <div style="font-size: 11px; color: #666;">Bagikan KODE ini ke pasanganmu:</div>
+                <div id="room-code-display" style="font-size: 28px; font-weight: 900; color: var(--primary-dark); letter-spacing: 4px; margin: 8px 0; background: #ffe6ea; padding: 8px; border-radius: 12px; border: 2px dashed var(--primary);">----</div>
+                <div style="font-size: 11px; color: #ff4d6d; font-weight: 700;">Menunggu pasangan masuk... ⏳</div>
+            </div>
+
+            <div id="lobby-join-sec" style="margin-bottom: 12px; display: none;">
+                <input type="number" id="input-room-code" placeholder="Masukkan 4 Digit Kode" style="width: 100%; padding: 10px; font-size: 16px; text-align: center; border-radius: 10px; border: 2px solid var(--primary); box-sizing: border-box; font-weight: 800; letter-spacing: 2px;">
+                <button class="btn-action btn-buy" style="margin-top: 8px;" onclick="window.joinMultiplayerRoom()">Gabung Room 🔗</button>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-action btn-pass" onclick="document.getElementById('lobby-modal').style.display = 'none'">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Utama (ES Module) -->
+    <script type="module" src="main.js"></script>
+
+</body>
+</html>
